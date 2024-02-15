@@ -1,0 +1,80 @@
+image="field.jpg";
+
+he = imread(image); %Reading the image
+imshow(he)%Displaying the image
+title("Field Image")%Title of the image
+text(size(he,2),size(he,1)+15, ...
+     "", ...
+     FontSize=7,HorizontalAlignment="right")%Text size of the image
+%Using K-Means Clustering classifying the colors
+%Segementing in to eight regions using K-Means
+numColors = 8;%Number of regions that need to be segmented
+L = imsegkmeans(he,numColors);%Returns a label corresponding to a cluster
+B = labeloverlay(he,L);
+imshow(B)%Showing the image
+title("Labeled Image RGB")%Title of the image
+%Converting to L*a*b* color space from RGB color space
+lab_he = rgb2lab(he); %Converting image in to L*a*b space
+ab = lab_he(:,:,2:3);%Using K-Means Clustering classifying in to a*b* space
+ab = im2single(ab);%Converting image in to single precision
+pixel_labels = imsegkmeans(ab,numColors,NumAttempts=3);%Image segmentation
+B2 = labeloverlay(he,pixel_labels);
+imshow(B2)%Showing the image
+title("Labeled Image a*b*")%Title of the image 
+%We can separate dark blue from light blue 
+%using the L* layer in the L*a*b* color space. The cell nuclei are dark blue.
+mask5 = pixel_labels == 5; %Cluster 5
+cluster5 = he.*uint8(mask5);%Segmentation of cluster 5
+imwrite(cluster5, 'cluster5.jpg');
+imshow(cluster5)%Showing the segment 5
+title("Objects in Cluster 5");%Title of the image
+%Using K-Means Clustering classifying the colors
+%Segementing in to eight regions using K-Means
+numColors = 5;%Number of regions that need to be segmented
+L = imsegkmeans(he,numColors);%Returns a label corresponding to a cluster
+B = labeloverlay(he,L);
+imshow(B)%Showing the image
+title("Labeled Image RGB")%Title of the image
+%Converting to L*a*b* color space from RGB color space
+lab_he = rgb2lab(he); %Converting image in to L*a*b space
+ab = lab_he(:,:,2:3);%Using K-Means Clustering classifying in to a*b* space
+ab = im2single(ab);%Converting image in to single precision
+pixel_labels = imsegkmeans(ab,numColors,NumAttempts=3);%Image segmentation
+B2 = labeloverlay(he,pixel_labels);
+imshow(B2)%Showing the image
+title("Labeled Image a*b*")%Title of the image 
+%Cluster 3 contains only the blue objects. Notice that there are dark and light blue objects
+mask3 = pixel_labels == 3; %Cluster 3
+cluster3 = he.*uint8(mask3);
+imshow(cluster3) 
+imwrite(cluster3, 'cluster3.jpg');
+title("Objects in Cluster 3");
+I=imread(image);%Reading an image
+%imshow(I);
+I1= imgaussfilt(I,35);%Blurring the image using gaussian filter
+G=im2gray(I);%Converting color image in to gray 
+G1=im2gray(I1);%Converting color image in to gray 
+D=G-G1;%Subtracting two gray images
+D1=4*D;
+bw = imbinarize(D1);
+imwrite(bw, 'final9_2.jpg');
+imshow(bw);
+I3=imread('cluster3.jpg');
+I3=im2gray(I3);
+I3=imbinarize(I3);
+o8=(bw)-(I3);
+imwrite(o8, 'final9.jpg');
+imshow(o8);
+I1=imread(image);
+G1=im2gray(I1);
+bw1 = imfilter(G1, ones(12)/81, 'symmetric');
+I2=imread('cluster5.jpg');
+G2=im2gray(I2);
+bw2 = imfilter(G2, ones(1)/1, 'symmetric');
+G=bw1-bw2;
+G=256-G;
+G=imbinarize(G);
+G=o8-G;
+imwrite(G,'final9_1.jpg');
+imshow(G*5);
+
